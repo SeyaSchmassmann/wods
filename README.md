@@ -37,12 +37,17 @@ Zusätzlich wird die Anzahl der trainierbaren Parameter, sowie die Trainingszeit
 
 ## Hypothese 2
 
->
+> Die Verwendung von kleineren Patch-Grössen in der ViT-Architektur führen zu einer besseren Modellleistung, da sie feinere lokale Bildstrukturen erfassen und dem Transformer präzisere Feature-Repräsentationen zur Verfügung stellen.
 
 ### Aufbau des Experiment
 
-#### Architekturen
+Die [ViT-Architektur](https://github.com/google-research/vision_transformer) wird mit unterschiedlichen Patch-Grössen getestet. Die Standard-Patch-Grösse beträgt 16x16 Pixel. Diese wird mit den Patch-Grössen 8x8 und 4x4 Pixel verglichen. Die Anzahl der Transformer-Blöcke bleibt dabei konstant.
 
 #### Dataset
 
+Als Dataset wird der **[TinyImagenet-Datensatz](https://www.kaggle.com/datasets/akash2sharma/tiny-imagenet)** verwendet. Dieser enthält 200 Klassen mit jeweils 500 Bildern, die eine Auflösung von 64x64 Pixeln haben. Die Bilder sind in 3 Kanälen (RGB) gespeichert. Das Dataset ist in Trainings-, Validierungs- und Testdaten unterteilt. Die Trainingsdaten bestehen aus 100'000 Bildern, die Validierungsdaten aus 10'000 Bildern und die Testdaten aus 10'000 Bildern.
+
 #### Metriken
+
+Als Metrik zur Leistungsbewertung wird die Accuracy verwendet, als Loss-Funktion wird der Cross-Entropy-Loss verwendet.
+Zusätzlich wird die Anzahl der trainierbaren Parameter, sowie die Trainingszeit pro Epoche und Inference-Zeit pro Bild gemessen.
