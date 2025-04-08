@@ -1,6 +1,6 @@
 # Data Science Workshop - FHNW
 
-Im Rahmen des Data Science Workshops an der FHNW habe ich mich intensiv mit mehreren aktuellen wissenschaftlichen Papers auseinandergesetzt. Die gewonnenen Erkenntnisse aus diesen Papers dienen als Grundlage für die Hypothesen, die ich im Workshop aufstellen und validieren werde.
+Im Rahmen des Data Science Workshops an der FHNW habe ich mich intensiv mit mehreren aktuellen wissenschaftlichen Papers auseinandergesetzt. Die daraus gewonnenen Erkenntnisse dienen als Grundlage für die Hypothesen, die ich im Workshop aufstellen und validieren werde.
 
 Folgende Papers wurden analysiert, wobei das Hauptaugenmerk auf dem letzten Paper lag:
 
@@ -8,46 +8,67 @@ Folgende Papers wurden analysiert, wobei das Hauptaugenmerk auf dem letzten Pape
 - [An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale](https://openreview.net/pdf?id=YicbFdNTTy)
 - [CvT: Introducing Convolutions to Vision Transformers](https://openaccess.thecvf.com/content/ICCV2021/papers/Wu_CvT_Introducing_Convolutions_to_Vision_Transformers_ICCV_2021_paper.pdf)
 
-## Hypothese 1
+## Hypothese: Convolutions in Vision Transformers
 
-> Die gute Performance der CvT-Architektur lässt sich primär durch die frühen Convolutional-Schichten erklären. Spätere Convolutional-Schichten in den Transformer-Blöcken tragen nur marginal zur Gesamtleistung bei und können weggelassen werden, ohne signifikanten Performanceverlust bei den betrachteten Metriken zu verursachen.
+> Die gute Performance der CvT-Architektur lässt sich primär durch die zu Beginn ausgeführte Embedding Convolution erklären. Spätere Convolutions in und zwischen den Transformer-Blöcken tragen nur marginal zur Gesamtleistung bei und können weggelassen werden, ohne Performanceverlust bei den betrachteten Metriken zu verursachen.
 
-### Aufbau des Experiment
+### Aufbau des Experiments
 
-#### Architekturen
+Zur Validierung der Hypothese werden die bestehenden Architekturen aus den obigen Papers als auch eigene vereinfachte Varianten des CvT-Modells verglichen.
 
-Das vereinfachte CvT-Modell wird mit bestehenden Architekturen verglichen:
+#### Vergleichsmodelle
 
 - [CvT (Convolutional Vision Transformer) – Microsoft](https://github.com/microsoft/CvT)
 - [ViT (Vision Transformer) – Google Research](https://github.com/google-research/vision_transformer)
 - [ResNet50](https://pytorch.org/vision/main/models/generated/torchvision.models.resnet50.html)
 
-Das **vereinfachte CvT-Modell** setzt sich, wie im ViT-Paper beschrieben, aus 3 sequentiell angeordneten Transformer-Blöcken zusammen. Im Gegensatz zum einfachen Embedding bestehend aus einer rein linearen Projektion, wird hier ein **Convolutional Layer** verwendet, wie dies im CvT-Paper ebenfalls beschrieben ist. Dieser Layer wird jedoch ausschliesslich vor dem ersten Transformer-Block eingesetzt, und zwar vor dem ersten Transformer-Block.
+#### Vereinfachte CvT-Modelle
 
-<img src="./CvT-simplified.drawio.png" alt="Hybrides Modell" height="400"/>
+Die vereinfachten CvT-Modelle übernehmen den Transformer-Block, wie er im ViT-Paper beschrieben wurde. Anstelle einer linearen Projektion als Embedding zu verwenden, kommt jedoch ein Convolutional Embedding zum Einsatz. Im letzten Versuch wird zusätzlich auch noch ein Convolutional Block zwischen den Transformer-Blöcken eingefügt.
 
-#### Dataset
+1. **Convolutional Embedding:**\
+    Das Embedding erfolgt duch eine einfache Convolution, wie diese bereits im CvT-Paper verwendet wurde.\
+    <img src="./CvT-SimplifiedHead.drawio.png" alt="CvT-Modell mit Convolutional Embedding" title="CvT-Modell mit Convolutional Embedding" height="400" />
 
-Als Dataset wird der **[TinyImagenet-Datensatz](https://www.kaggle.com/datasets/akash2sharma/tiny-imagenet)** verwendet. Dieser enthält 200 Klassen mit jeweils 500 Bildern, die eine Auflösung von 64x64 Pixeln haben. Die Bilder sind in 3 Kanälen (RGB) gespeichert. Das Dataset ist in Trainings-, Validierungs- und Testdaten unterteilt. Die Trainingsdaten bestehen aus 100'000 Bildern, die Validierungsdaten aus 10'000 Bildern und die Testdaten aus 10'000 Bildern.
+2. **ResNet-Head Embedding:**\
+    Das Embedding erfolgt durch eine komplexere Kombination von Convolutions, welche von der ResNet-Architektur übernommen wurden. \
+    <img src="./CvT-ResNetHead.drawio.png" alt="CvT-Modell mit ResNet-Head Embedding" title="CvT-Modell mit ResNet-Head Embedding" height="400"/>
 
-#### Metriken
+3. **Recurrent Convolutions:**\
+    Zusätzlich zu einem Convolutional Embedding (ResNet-Head oder einfache Convolution) werden auch zwischen den Transformer-Blöcken Convolutions eingeführt, um die Token-Dimensionen progressiv zu reduzieren. Dies sollte vor allem zur Reduktion der Rechenkomplexität in der Attention-Berechnung beitragen.\
+    <img src="./CvT-RecurrentConvolutions.drawio.png" alt="CvT-Modell mit recurrent Convolutions" title="CvT-Modell mit recurrent Convolutions" height="400"/> \
 
-Als Metrik zur Leistungsbewertung wird die Accuracy verwendet, als Loss-Funktion wird der Cross-Entropy-Loss verwendet.
-Zusätzlich wird die Anzahl der trainierbaren Parameter, sowie die Trainingszeit pro Epoche und Inference-Zeit pro Bild gemessen.
+### Dataset
+
+Verwendet wird der [Tiny Imagenet-Datensatz](https://www.kaggle.com/datasets/akash2sharma/tiny-imagenet):
+
+- 200 Klassen, je 500 Trainingsbilder (insgesamt 100'000)
+- Auflösung: 64×64 Pixel, RGB
+- Unterteilt in: Training (100'000), Validierung (10'000), Test (10'000)
+
+### Metriken
+
+Zur Bewertung der Modelle werden folgende Metriken herangezogen:
+
+- Accuracy (Hauptmetrik)
+- Cross Entropy Loss
+- Anzahl der trainierbaren Parameter
+- Trainingszeit pro Epoche
+- Inference-Zeit pro Bild
 
 ## Hypothese 2
 
-> Die Verwendung von kleineren Patch-Grössen in der ViT-Architektur führen zu einer besseren Modellleistung, da sie feinere lokale Bildstrukturen erfassen und dem Transformer präzisere Feature-Repräsentationen zur Verfügung stellen.
+> Durch den Einsatz von Grad-CAM kann gezeigt werden, dass sich die Convolutions in der CvT-Architektur auf die für die Klassifizierung relevanten Bildregionen konzentrieren.
 
-### Aufbau des Experiment
+### Aufbau des Experiments
 
-Die [ViT-Architektur](https://github.com/google-research/vision_transformer) wird mit unterschiedlichen Patch-Grössen getestet. Die Standard-Patch-Grösse beträgt 16x16 Pixel. Diese wird mit den Patch-Grössen 8x8 und 4x4 Pixel verglichen. Die Anzahl der Transformer-Blöcke bleibt dabei konstant.
+Zur Validierung dieser Hypothese wird Grad-CAM (Gradient-weighted Class Activation Mapping) eingesetzt, um visuell darzustellen, auf welche Bildregionen sich unterschiedliche Modellbestandteile bei der Klassifikation konzentrieren. Grad-CAM wird dabei in die Convolutions der CvT-Architektur integriert, um aus den Gradienten der Convolutions die Heatmap zu berechnen. Diese Heatmap wird dann mit dem Originalbild überlagert, um die für die Klassifikation relevanten Bildregionen hervorzuheben.
+Es wird untersucht, ob sich ein ähnliches Verfahren auch auf die Attention-Maps der Transformer-Blöcke anwenden lässt.
 
-#### Dataset
+### Dataset
 
-Als Dataset wird der **[TinyImagenet-Datensatz](https://www.kaggle.com/datasets/akash2sharma/tiny-imagenet)** verwendet. Dieser enthält 200 Klassen mit jeweils 500 Bildern, die eine Auflösung von 64x64 Pixeln haben. Die Bilder sind in 3 Kanälen (RGB) gespeichert. Das Dataset ist in Trainings-, Validierungs- und Testdaten unterteilt. Die Trainingsdaten bestehen aus 100'000 Bildern, die Validierungsdaten aus 10'000 Bildern und die Testdaten aus 10'000 Bildern.
+Wie in Hypothese 1 wird der Tiny ImageNet-Datensatz verwendet. Zusätzlich werden einige Beispielbilder manuell ausgewählt, bei denen die Aktivierungen visuell besonders aussagekräftig interpretiert werden können (z. B. Objekte klar vom Hintergrund getrennt).
 
-#### Metriken
+### Metriken
 
-Als Metrik zur Leistungsbewertung wird die Accuracy verwendet, als Loss-Funktion wird der Cross-Entropy-Loss verwendet.
-Zusätzlich wird die Anzahl der trainierbaren Parameter, sowie die Trainingszeit pro Epoche und Inference-Zeit pro Bild gemessen.
+TBD
