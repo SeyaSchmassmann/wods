@@ -22,7 +22,7 @@ Die Modelle werden in einem ersten Schritt mit den gleichen Hyperparametern trai
 
 - [ResNet50](https://pytorch.org/vision/main/models/generated/torchvision.models.resnet50.html)
 - [ViT (Vision Transformer) – Google Research](https://github.com/google-research/vision_transformer)
-- [CvT (Convolutional Vision Transformer) – Microsoft](https://github.com/microsoft/CvT): /
+- [CvT (Convolutional Vision Transformer) – Microsoft](https://github.com/microsoft/CvT): \
   <img src="./CvT-Original.drawio.png" alt="original CvT-Modell" title="original CvT-Modell" height="400" />
 
 #### Vereinfachte CvT-Modelle
@@ -37,9 +37,9 @@ Die vereinfachten CvT-Modelle übernehmen den Transformer-Block, wie er im ViT-P
     Das Embedding erfolgt durch eine Kombination von zwei Convolutions: \
     <img src="./CvT-EnhancedEmbedding.drawio.png" alt="CvT-Modell mit erweiterten Convolutional Embedding" title="CvT-Modell mit erweiterten Convolutional Embedding" height="400"/>
 
-3. **Recurrent Convolutions:**\
+3. **Recurrent Embedding:**\
     Zusätzlich zu einem Convolutional Embedding (siehe 1. oder 2.) werden auch zwischen den Transformer-Blöcken Convolutions eingeführt, um die Token-Dimensionen progressiv zu reduzieren. Dies sollte vor allem zur Reduktion der Rechenkomplexität in der Attention-Berechnung beitragen. Dies wurde auch im CvT-Paper so umgesetzt. In diesem Modell wird im Gegensatz zum CvT-Modell auf die Convolutional Projection vor dem Attention-Mechanismus verzichtet: \
-    <img src="./CvT-RecurrentConvolutions.drawio.png" alt="CvT-Modell mit recurrent Convolutions" title="CvT-Modell mit recurrent Convolutions" height="400"/> \
+    <img src="./CvT-RecurrentEmbedding.drawio.png" alt="CvT-Modell mit recurrent Embedding" title="CvT-Modell mit recurrent Embedding" height="400"/> \
 
 ### Dataset
 
