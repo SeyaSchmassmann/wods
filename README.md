@@ -18,12 +18,12 @@ Zur Validierung der Hypothese werden die bestehenden Architekturen aus den obige
 
 Die Modelle werden in einem ersten Schritt mit den gleichen Hyperparametern trainiert, um die Performance der Modelle zu vergleichen. In einem zweiten Schritt wäre eine Optimierung der Hyperparameter für die einzelnen Modelle denkbar, um die Performance weiter zu steigern. Als Optimizer wird AdamW verwendet werden, da dieser ebenfalls in den Papers verwendet wurde.
 
-#### Vergleichsmodelle
+#### Vergleichsmodell(e)
 
-- [ResNet50](https://pytorch.org/vision/main/models/generated/torchvision.models.resnet50.html)
-- [ViT (Vision Transformer) – Google Research](https://github.com/google-research/vision_transformer)
-- [CvT (Convolutional Vision Transformer) – Microsoft](https://github.com/microsoft/CvT): \
-  <img src="./CvT-Original.drawio.png" alt="original CvT-Modell" title="original CvT-Modell" height="400" />
+[CvT (Convolutional Vision Transformer) – Microsoft](https://github.com/microsoft/CvT): \
+<img src="./CvT-Original.drawio.png" alt="original CvT-Modell" title="original CvT-Modell" height="400" />
+
+Ein Vergleich mit [ViT (Vision Transformer) – Google Research](https://github.com/google-research/vision_transformer) und [ResNet50](https://pytorch.org/vision/main/models/generated/torchvision.models.resnet50.html) wird bei verbleibenden Zeitressourcen ebenfalls angestrebt.
 
 #### Vereinfachte CvT-Modelle
 
@@ -39,7 +39,7 @@ Die vereinfachten CvT-Modelle übernehmen den Transformer-Block, wie er im ViT-P
 
 3. **Recurrent Embedding:**\
     Zusätzlich zu einem Convolutional Embedding (siehe 1. oder 2.) werden auch zwischen den Transformer-Blöcken Convolutions eingeführt, um die Token-Dimensionen progressiv zu reduzieren. Dies sollte vor allem zur Reduktion der Rechenkomplexität in der Attention-Berechnung beitragen. Dies wurde auch im CvT-Paper so umgesetzt. In diesem Modell wird im Gegensatz zum CvT-Modell auf die Convolutional Projection vor dem Attention-Mechanismus verzichtet: \
-    <img src="./CvT-RecurrentEmbedding.drawio.png" alt="CvT-Modell mit recurrent Embedding" title="CvT-Modell mit recurrent Embedding" height="400"/> \
+    <img src="./CvT-RecurrentEmbedding.drawio.png" alt="CvT-Modell mit recurrent Embedding" title="CvT-Modell mit recurrent Embedding" height="400"/>
 
 ### Dataset
 
