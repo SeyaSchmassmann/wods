@@ -65,7 +65,7 @@ Zur Bewertung der Modelle werden folgende Metriken herangezogen:
 
 ### Aufbau des Experiments
 
-Zur Validierung dieser Hypothese wird Grad-CAM (Gradient-weighted Class Activation Mapping) eingesetzt, um visuell darzustellen, auf welche Bildregionen sich unterschiedliche Convolutions bei der Klassifikation konzentrieren. Grad-CAM wird dabei in die Convolutions der CvT-Architektur integriert, um aus den Gradienten der Convolutions die Heatmap zu berechnen. Diese Heatmap wird dann mit dem Originalbild überlagert, um die für die Klassifikation relevanten Bildregionen hervorzuheben.
+Zur Validierung dieser Hypothese wird [Grad-CAM](https://arxiv.org/pdf/1610.02391) (Gradient-weighted Class Activation Mapping) eingesetzt, um visuell darzustellen, auf welche Bildregionen sich unterschiedliche Convolutions bei der Klassifikation konzentrieren. Grad-CAM wird dabei in die Convolutions der CvT-Architektur integriert, um aus den Gradienten der Convolutions die Heatmap zu berechnen. Diese Heatmap wird dann mit dem Originalbild überlagert, um die für die Klassifikation relevanten Bildregionen hervorzuheben.
 Es wird untersucht, ob sich ein ähnliches Verfahren auch auf die Attention-Maps der Transformer-Blöcke anwenden lässt.
 
 ### Dataset
