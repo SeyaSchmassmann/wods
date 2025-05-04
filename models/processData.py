@@ -2,8 +2,7 @@ import os
 from pathlib import Path
 import shutil
 
-import datasets
-from matplotlib import transforms
+from torchvision import datasets, transforms
 import torch
 from torch.utils.data import DataLoader, random_split
 
@@ -93,9 +92,10 @@ def get_tiny_imagenet_loaders(dir_data_train,
     return train_loader, val_loader, test_loader
 
 
-def prepare_data_and_get_loaders(zip_path):
-    dir_datazip = Path(zip_path) # "/datasets/tiny-imagenet-200/tiny-imagenet-200.zip" | "data/tiny-imagenet-200.zip"
-    dir_data = Path("data/tiny-imagenet-200")
+def prepare_data_and_get_loaders(path): # "/datasets/tiny-imagenet-200" | "data/"
+    zip_path = os.path.join(path, "tiny-imagenet-200.zip")
+    dir_datazip = Path(zip_path)
+    dir_data = os.path.join(path, "tiny-imagenet-200")
     extract_data(dir_datazip, Path("data"))
 
     dir_data_train = os.path.join(dir_data, "train")
