@@ -29,7 +29,7 @@ Ein Vergleich mit [ViT (Vision Transformer) – Google Research](https://github.
 
 Die vereinfachten CvT-Modelle übernehmen den Transformer-Block, wie er im ViT-Paper beschrieben wurde. Anstelle einer linearen Projektion als Embedding zu verwenden, kommt jedoch ein Convolutional Embedding zum Einsatz. Im letzten Versuch wird zusätzlich auch noch ein Convolutional Block zwischen den Transformer-Blöcken eingefügt.
 
-1. [**Convolutional Embedding:**](./CvT-SimplifiedEmbedding.ipynb)\
+1. [**Convolutional Embedding:**](./models/CvT-SimplifiedEmbedding.ipynb)\
     Das Embedding erfolgt duch eine einfache Convolution, wie diese bereits im CvT-Paper verwendet wurde:\
     <img src="./CvT-SimplifiedEmbedding.drawio.png" alt="CvT-Modell mit Convolutional Embedding" title="CvT-Modell mit Convolutional Embedding" height="400" />
 
