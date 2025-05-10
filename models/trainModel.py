@@ -70,5 +70,5 @@ def train_test_model(model, train_loader, val_loader, test_loader, epochs=20):
 
         wandb.finish()
     except Exception as e:
-        print(f"An error occurred: {e}")
         wandb.finish()
+        raise e
