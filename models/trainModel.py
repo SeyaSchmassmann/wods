@@ -1,7 +1,9 @@
+import os
 import torch
 from torchmetrics import Accuracy
 import pytorch_lightning as pl
 from pytorch_lightning.loggers import WandbLogger
+import wandb
 
 
 class LitModel(pl.LightningModule):
@@ -52,13 +54,21 @@ class LitModel(pl.LightningModule):
 def train_test_model(model, train_loader, val_loader, test_loader, epochs=20):
     lit_model = LitModel(model)
 
-    wandb_logger = WandbLogger(entity="wods", project="wods")
-    wandb_logger.experiment.config["batch_size"] = 64
+    try:
+        wandb.login(key=os.getenv('API_KEY_WANDB'))
 
-    trainer = pl.Trainer(max_epochs=epochs,
-                         accelerator="auto",
-                         devices="auto",
-                         logger=wandb_logger)
+        wandb_logger = WandbLogger(entity="wods", project="wods")
+        wandb_logger.experiment.config["batch_size"] = 64
 
-    trainer.fit(lit_model, train_loader, val_loader)
-    trainer.test(lit_model, test_loader)
+        trainer = pl.Trainer(max_epochs=epochs,
+                            accelerator="auto",
+                            devices="auto",
+                            logger=wandb_logger)
+
+        trainer.fit(lit_model, train_loader, val_loader)
+        trainer.test(lit_model, test_loader)
+
+        wandb.finish()
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        wandb.finish()
