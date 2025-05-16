@@ -1,6 +1,7 @@
 import os
 import torch
-from torchmetrics import Accuracy, MulticlassF1Score
+from torchmetrics import Accuracy
+from torchmetrics.classification import MulticlassF1Score
 import pytorch_lightning as pl
 from pytorch_lightning.loggers import WandbLogger
 import wandb
