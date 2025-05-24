@@ -70,12 +70,9 @@ class LitModel(pl.LightningModule):
         self.test_acc.reset()
         self.test_f1.reset()
 
-
-    # def configure_optimizers(self):
-    #     optimizer = torch.optim.Adam(self.parameters(), lr=1e-3)
-    #     return optimizer
     def configure_optimizers(self):
-        optimizer = torch.optim.AdamW(self.parameters(), lr=3e-4, weight_decay=0.05)
+        print(self.parameters())
+        optimizer = torch.optim.AdamW(self.parameters(), lr=1e-4, weight_decay=0.05)
         scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=self.trainer.max_epochs)
         return {"optimizer": optimizer, "lr_scheduler": scheduler}
 
@@ -87,8 +84,9 @@ def train_test_model(model, train_loader, val_loader, test_loader, epochs=30):
         wandb.login(key=os.getenv('API_KEY_WANDB'))
 
         wandb_logger = WandbLogger(entity="wods", project="wods")
-        wandb_logger.experiment.config["batch_size"] = 64
+        wandb_logger.experiment.config["batch_size"] = train_loader.batch_size
         wandb_logger.experiment.config["epochs"] = epochs
+        wandb_logger.experiment.config["lr"] = lit_model.configure_optimizers()["optimizer"].param_groups[0]["lr"]
 
         trainer = pl.Trainer(max_epochs=epochs,
                              accelerator="auto",
