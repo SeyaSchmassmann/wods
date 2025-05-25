@@ -1,5 +1,6 @@
 import os
 import torch
+from timm.scheduler import CosineLRScheduler
 from torchmetrics import Accuracy
 from torchmetrics.classification import MulticlassF1Score
 import pytorch_lightning as pl
@@ -33,6 +34,8 @@ class LitModel(pl.LightningModule):
         self.log('train_loss', loss)
         self.log('train_acc', self.train_acc, on_step=False, on_epoch=True)
         self.log('train_f1', self.train_f1, on_step=False, on_epoch=True)
+        current_lr = self.optimizer.param_groups[0]["lr"]
+        self.log('lr', current_lr, on_step=False, on_epoch=True, prog_bar=True)
         return loss
 
     def validation_step(self, batch, _):
@@ -71,11 +74,34 @@ class LitModel(pl.LightningModule):
         self.test_acc.reset()
         self.test_f1.reset()
 
+    # def configure_optimizers(self):
+    #     print(self.parameters())
+    #     optimizer = torch.optim.AdamW(self.parameters(), lr=1e-4, weight_decay=0.05)
+    #     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=self.trainer.max_epochs)
+    #     return {"optimizer": optimizer, "lr_scheduler": scheduler}
+    
+
     def configure_optimizers(self):
-        print(self.parameters())
-        optimizer = torch.optim.AdamW(self.parameters(), lr=1e-4, weight_decay=0.05)
-        scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=self.trainer.max_epochs)
-        return {"optimizer": optimizer, "lr_scheduler": scheduler}
+        self.optimizer = torch.optim.AdamW(self.parameters(), lr=1e-4, weight_decay=1e-3)
+        scheduler = CosineLRScheduler(
+            self.optimizer,
+            t_initial=self.trainer.max_epochs,
+            lr_min=1e-6,
+            warmup_lr_init=1e-6,
+            warmup_t=5,
+            t_in_epochs=True
+        )
+        return {
+            "optimizer": self.optimizer,
+            "lr_scheduler": {
+                "scheduler": scheduler,
+                "interval": "epoch",
+            }
+        }
+    
+    def lr_scheduler_step(self, scheduler, metric):
+        scheduler.step(self.current_epoch)
+
 
 
 def train_test_model(model, train_loader, val_loader, test_loader, epochs=30):
@@ -92,7 +118,7 @@ def train_test_model(model, train_loader, val_loader, test_loader, epochs=30):
             "model_name": model.__class__.__name__,
             "batch_size": train_loader.batch_size,
             "epochs": epochs,
-            "learning_rate": 1e-4,
+            "learning_rate": '1e-6 -> 1e-4',
         })
 
         trainer = pl.Trainer(max_epochs=epochs,
