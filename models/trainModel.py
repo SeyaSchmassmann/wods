@@ -84,8 +84,14 @@ def train_test_model(model, train_loader, val_loader, test_loader, epochs=30):
         wandb.login(key=os.getenv('API_KEY_WANDB'))
 
         wandb_logger = WandbLogger(entity="wods", project="wods")
-        wandb_logger.experiment.config["batch_size"] = train_loader.batch_size
-        wandb_logger.experiment.config["epochs"] = epochs
+        run_name = f"{model.__class__.__name__}_{pl.utilities.seed.seed_everything()}"
+        wandb_logger.experiment.name = run_name
+        wandb_logger.log_hyperparams({
+            "model_name": model.__class__.__name__,
+            "batch_size": train_loader.batch_size,
+            "epochs": epochs,
+            "learning_rate": 1e-4,
+        })
 
         trainer = pl.Trainer(max_epochs=epochs,
                              accelerator="auto",
