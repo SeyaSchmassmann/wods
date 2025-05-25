@@ -86,7 +86,6 @@ def train_test_model(model, train_loader, val_loader, test_loader, epochs=30):
         wandb_logger = WandbLogger(entity="wods", project="wods")
         wandb_logger.experiment.config["batch_size"] = train_loader.batch_size
         wandb_logger.experiment.config["epochs"] = epochs
-        wandb_logger.experiment.config["lr"] = lit_model.configure_optimizers()["optimizer"].param_groups[0]["lr"]
 
         trainer = pl.Trainer(max_epochs=epochs,
                              accelerator="auto",

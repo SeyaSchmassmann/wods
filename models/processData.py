@@ -92,7 +92,7 @@ def get_tiny_imagenet_loaders(dir_data_train,
     return train_loader, val_loader, test_loader
 
 
-def prepare_data_and_get_loaders(dir_datazip, dir_data): # "/datasets/tiny-imagenet-200" | "data/"
+def prepare_data_and_get_loaders(dir_datazip, dir_data):
     extract_data(dir_datazip, dir_data)
 
     dir_data_train = os.path.join(dir_data, "train")
