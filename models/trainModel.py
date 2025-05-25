@@ -5,6 +5,7 @@ from torchmetrics.classification import MulticlassF1Score
 import pytorch_lightning as pl
 from pytorch_lightning.loggers import WandbLogger
 import wandb
+from datetime import datetime
 
 
 class LitModel(pl.LightningModule):
@@ -84,7 +85,7 @@ def train_test_model(model, train_loader, val_loader, test_loader, epochs=30):
         wandb.login(key=os.getenv('API_KEY_WANDB'))
 
         wandb_logger = WandbLogger(entity="wods", project="wods")
-        run_name = f"{model.__class__.__name__}_{pl.utilities.seed.seed_everything()}"
+        run_name = f"{datetime.now().strftime("%Y-%m-%d_%H:%M:%S")}_{model.__class__.__name__}"
         wandb_logger.experiment.name = run_name
         wandb_logger.log_hyperparams({
             "model_name": model.__class__.__name__,
