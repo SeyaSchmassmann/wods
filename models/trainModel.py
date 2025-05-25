@@ -85,7 +85,7 @@ def train_test_model(model, train_loader, val_loader, test_loader, epochs=30):
         wandb.login(key=os.getenv('API_KEY_WANDB'))
 
         wandb_logger = WandbLogger(entity="wods", project="wods")
-        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
         run_name = f"{timestamp}_{model.__class__.__name__}"
         wandb_logger.experiment.name = run_name
         wandb_logger.log_hyperparams({
