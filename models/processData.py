@@ -4,7 +4,7 @@ import shutil
 
 from torchvision import datasets, transforms
 import torch
-import sklearn
+from sklearn.model_selection import KFold
 from torch.utils.data import DataLoader, random_split
 
 
@@ -76,7 +76,7 @@ def get_tiny_imagenet_loaders(dir_data_train,
     full_val_dataset = datasets.ImageFolder(dir_data_val_processed, transform=val_transforms)
 
     if k > 1:
-        kf = sklearn.model_selection.KFold(n_splits=k, shuffle=True, random_state=seed)
+        kf = KFold(n_splits=k, shuffle=True, random_state=seed)
         train_loaders = []
         val_loaders = []
         test_loader = create_data_loader(full_val_dataset, batch_size, num_workers, shuffle=False)
