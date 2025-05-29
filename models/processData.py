@@ -4,6 +4,7 @@ import shutil
 
 from torchvision import datasets, transforms
 import torch
+import sklearn
 from torch.utils.data import DataLoader, random_split
 
 
@@ -37,13 +38,25 @@ def arrange_validation_set(val_images_dir, val_annotations_file, val_processed_d
                 shutil.copy(src, dst)
 
 
+def create_data_loader(dataset, batch_size=32, num_workers=4, shuffle=True):
+    return DataLoader(
+        dataset,
+        batch_size=batch_size,
+        shuffle=shuffle,
+        num_workers=num_workers,
+        pin_memory=True
+    )
+
 def get_tiny_imagenet_loaders(dir_data_train,
                               dir_data_val_processed,
                               batch_size=32,
                               num_workers=4,
                               img_size=64,
                               val_split=0.2,
-                              seed=42):
+                              seed=42,
+                              k=5):
+
+    generator = torch.Generator().manual_seed(seed)
 
     train_transforms = transforms.Compose([
         transforms.RandomHorizontalFlip(),
@@ -62,34 +75,34 @@ def get_tiny_imagenet_loaders(dir_data_train,
     train_dataset = datasets.ImageFolder(dir_data_train, transform=train_transforms)
     full_val_dataset = datasets.ImageFolder(dir_data_val_processed, transform=val_transforms)
 
-    val_size = int(val_split * len(full_val_dataset))
-    test_size = len(full_val_dataset) - val_size
-    generator = torch.Generator().manual_seed(seed)
-    val_dataset, test_dataset = random_split(full_val_dataset, [val_size, test_size], generator=generator)
+    if k > 1:
+        kf = sklearn.model_selection.KFold(n_splits=k, shuffle=True, random_state=seed)
+        train_loaders = []
+        val_loaders = []
+        test_loader = create_data_loader(full_val_dataset, batch_size, num_workers, shuffle=False)
 
-    train_loader = DataLoader(
-        train_dataset,
-        batch_size=batch_size,
-        shuffle=True,
-        num_workers=num_workers,
-        pin_memory=True
-    )
-    val_loader = DataLoader(
-        val_dataset,
-        batch_size=batch_size,
-        shuffle=False,
-        num_workers=num_workers,
-        pin_memory=True
-    )
-    test_loader = DataLoader(
-        test_dataset,
-        batch_size=batch_size,
-        shuffle=False,
-        num_workers=num_workers,
-        pin_memory=True
-    )
+        for train_indices, val_indices in kf.split(train_dataset):
+            train_subset = torch.utils.data.Subset(train_dataset, train_indices)
+            val_subset = torch.utils.data.Subset(train_dataset, val_indices)
 
-    return train_loader, val_loader, test_loader
+            train_loader = create_data_loader(train_subset, batch_size, num_workers, shuffle=True)
+            val_loader = create_data_loader(val_subset, batch_size, num_workers, shuffle=False)
+
+            train_loaders.append(train_loader)
+            val_loaders.append(val_loader)
+        
+        return train_loaders, val_loaders, test_loader
+
+    else:
+        val_size = int(val_split * len(full_val_dataset))
+        test_size = len(full_val_dataset) - val_size
+        val_dataset, test_dataset = random_split(full_val_dataset, [val_size, test_size], generator=generator)
+
+        train_loader = create_data_loader(train_dataset, batch_size, num_workers, shuffle=True)
+        val_loader = create_data_loader(val_dataset, batch_size, num_workers, shuffle=False)
+        test_loader = create_data_loader(test_dataset, batch_size, num_workers, shuffle=False)
+
+        return train_loader, val_loader, test_loader
 
 
 def prepare_data_and_get_loaders(dir_datazip, dir_data):

@@ -74,13 +74,6 @@ class LitModel(pl.LightningModule):
         self.test_acc.reset()
         self.test_f1.reset()
 
-    # def configure_optimizers(self):
-    #     print(self.parameters())
-    #     optimizer = torch.optim.AdamW(self.parameters(), lr=1e-4, weight_decay=0.05)
-    #     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=self.trainer.max_epochs)
-    #     return {"optimizer": optimizer, "lr_scheduler": scheduler}
-    
-
     def configure_optimizers(self):
         self.optimizer = torch.optim.AdamW(self.parameters(), lr=1e-4, weight_decay=1e-3)
         scheduler = CosineLRScheduler(
@@ -103,28 +96,31 @@ class LitModel(pl.LightningModule):
         scheduler.step(self.current_epoch)
 
 
-
-def train_test_model(model, train_loader, val_loader, test_loader, epochs=30):
+def run_single_training(model, train_loader, val_loader, test_loader, epochs, run_name_suffix=""):
+    model = model()
     lit_model = LitModel(model)
 
     try:
         wandb.login(key=os.getenv('API_KEY_WANDB'))
 
-        wandb_logger = WandbLogger(entity="wods", project="wods")
         timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-        run_name = f"{timestamp}_{model.__class__.__name__}"
+        run_name = f"{timestamp}_{model.__class__.__name__}{run_name_suffix}"
+
+        wandb_logger = WandbLogger(entity="wods", project="wods")
         wandb_logger.experiment.name = run_name
         wandb_logger.log_hyperparams({
             "model_name": model.__class__.__name__,
             "batch_size": train_loader.batch_size,
             "epochs": epochs,
             "learning_rate": '1e-6 -> 1e-4',
+            "cross_validation": bool(run_name_suffix),
+            "k_folds": run_name_suffix.lstrip("_fold") if run_name_suffix else None
         })
 
         trainer = pl.Trainer(max_epochs=epochs,
-                             accelerator="auto",
-                             devices="auto",
-                             logger=wandb_logger)
+                            accelerator="auto",
+                            devices="auto",
+                            logger=wandb_logger)
 
         trainer.fit(lit_model, train_loader, val_loader)
         trainer.test(lit_model, test_loader)
@@ -133,3 +129,15 @@ def train_test_model(model, train_loader, val_loader, test_loader, epochs=30):
     except Exception as e:
         wandb.finish()
         raise e
+
+
+def train_test_model(model_class, train_loader, val_loader, test_loader, epochs=30):
+    if isinstance(train_loader, list) and isinstance(val_loader, list):
+        assert len(train_loader) == len(val_loader), "Mismatch in folds between train and val loaders"
+
+        for fold, (train, val) in enumerate(zip(train_loader, val_loader)):
+            print(f"\n===== Fold {fold + 1}/{len(train_loader)} =====\n")
+            run_single_training(model_class, train, val, test_loader, epochs, run_name_suffix=f"_fold{fold + 1}")
+
+    else:
+        run_single_training(model_class, train_loader, val_loader, test_loader, epochs)
