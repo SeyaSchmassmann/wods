@@ -105,7 +105,7 @@ def get_tiny_imagenet_loaders(dir_data_train,
         return train_loader, val_loader, test_loader
 
 
-def prepare_data_and_get_loaders(dir_datazip, dir_data):
+def prepare_data_and_get_loaders(dir_datazip, dir_data, k=1):
     extract_data(dir_datazip, dir_data)
 
     dir_data_train = os.path.join(dir_data, "train")
@@ -123,7 +123,8 @@ def prepare_data_and_get_loaders(dir_datazip, dir_data):
                                      num_workers=8,
                                      img_size=64,
                                      val_split=0.2,
-                                     seed=42)
+                                     seed=42,
+                                     k=k)
 
 
 if __name__ == "__main__":
